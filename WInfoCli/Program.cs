@@ -9,8 +9,8 @@ public class WInfoCli
 {
 
     private const string LineBreak = "--------------------------------------------------------------------------------";
-    private const double Megabyte = 1024.0 * 1024.0;
-    private const double Gigabyte = 1024.0 * 1024.0 * 1024.0;
+    private const double Gibibyte = 1024.0 * 1024.0 * 1024.0;
+    private const ulong GibibyteUL = 1024 * 1024 * 1024;
 
     public static void Main(string[] args)
     {
@@ -24,6 +24,7 @@ public class WInfoCli
     {
         Console.WriteLine("Computer Information");
         Console.WriteLine(LineBreak);
+        Console.WriteLine($"Host:\t\t\t{GetComputerModel()}");
         string cpuName = GetCPUName();
         Console.WriteLine($"Processor:\t\t{cpuName}");
         string processorArchitecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
@@ -36,10 +37,10 @@ public class WInfoCli
             Console.WriteLine("Processor Architecture:\tUnknown");
         }
         Console.WriteLine($"Logical Processors:\t{Environment.ProcessorCount}");
-        double totalPhysicalMemory = (double)GetTotalPhysicalMemory() / Gigabyte;
-        Console.WriteLine($"Total Physical Memory:\t{totalPhysicalMemory:F2} GB");
-        double freePhysicalMemory = (double)GetFreePhysicalMemory() / Gigabyte;
-        Console.WriteLine($"Free Physical Memory:\t{freePhysicalMemory:F2} GB");
+        double totalPhysicalMemory = (double)GetTotalPhysicalMemory() / Gibibyte;
+        Console.WriteLine($"Total Physical Memory:\t{totalPhysicalMemory:F2} GiB");
+        double freePhysicalMemory = (double)GetFreePhysicalMemory() / Gibibyte;
+        Console.WriteLine($"Free Physical Memory:\t{freePhysicalMemory:F2} GiB");
         Console.WriteLine(LineBreak);
         Console.WriteLine();
     }
@@ -59,8 +60,9 @@ public class WInfoCli
         }
         Console.WriteLine($"Windows Directory:\t{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}");
         Console.WriteLine($"System Directory:\t{Environment.SystemDirectory}");
-        string[] drives = Environment.GetLogicalDrives();
-        Console.WriteLine("Logical Drives:\t\t{0}", String.Join(", ", drives));
+        //string[] drives = Environment.GetLogicalDrives();
+        //Console.WriteLine("Logical Drives:\t\t{0}", String.Join(", ", drives));
+        Console.WriteLine($"Logical Drives:\t\t{GetDiskInformation()}");
         int tickCount = Environment.TickCount;
         TimeSpan uptime = TimeSpan.FromMilliseconds(tickCount);
         string formattedUptime = string.Format("{0} days, {1} hours, {2} minutes, {3} seconds", uptime.Days, uptime.Hours, uptime.Minutes, uptime.Seconds);
@@ -77,11 +79,12 @@ public class WInfoCli
         Console.WriteLine($"User Domain Name:\t{Environment.UserDomainName}");
         Console.WriteLine($"Machine Name:\t\t{Environment.MachineName}");
         Console.WriteLine($"Application Data:\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}");
-        Console.WriteLine($"Desktop:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}");
-        Console.WriteLine($"My Documents:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}");
-        Console.WriteLine($"My Music:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyMusic)}");
-        Console.WriteLine($"My Pictures:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)}");
-        Console.WriteLine($"My Videos:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyVideos)}");
+        Console.WriteLine($"User Profile:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}");
+        //Console.WriteLine($"Desktop:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}");
+        //Console.WriteLine($"My Documents:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}");
+        //Console.WriteLine($"My Music:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyMusic)}");
+        //Console.WriteLine($"My Pictures:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)}");
+        //Console.WriteLine($"My Videos:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyVideos)}");
         Console.WriteLine(LineBreak);
         Console.WriteLine();
     }
@@ -115,6 +118,40 @@ public class WInfoCli
             Console.WriteLine($"An unexpected error occurred: {ex.Message}");
         }
         return "";
+    }
+
+    public static string GetComputerModel()
+    {
+        try
+        {
+            using (ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT Manufacturer, Model FROM Win32_ComputerSystem"))
+            {
+                foreach (ManagementObject wmi in searcher.Get())
+                {
+                    string manufacturer = wmi["Manufacturer"]?.ToString().Trim();
+                    string model = wmi["Model"]?.ToString().Trim();
+
+                    if (!string.IsNullOrEmpty(manufacturer) && !string.IsNullOrEmpty(model))
+                    {
+                        return $"{manufacturer} {model}";
+                    }
+                    else if (!string.IsNullOrEmpty(manufacturer))
+                    {
+                        return manufacturer;
+                    }
+                    else if (!string.IsNullOrEmpty(model))
+                    {
+                        return model;
+                    }
+
+                }
+            }
+            return "Unknown machine type";
+        }
+        catch (Exception ex)
+        {
+            return $"Error: {ex.Message}";
+        }
     }
 
     public static string GetFriendlyOsName()
@@ -166,10 +203,41 @@ public class WInfoCli
             foreach (ManagementObject obj in searcher.Get())
             {
                 // Convert from kilobytes to bytes
-                return (ulong.Parse(obj["FreePhysicalMemory"].ToString()) * 1024);
+                return (ulong.Parse(obj["FreePhysicalMemory"]?.ToString()) * 1024);
             }
         }
         return 0;
+    }
+
+    public static string GetDiskInformation()
+    {
+        string result = "";
+
+        try
+        {
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_LogicalDisk WHERE DriveType = 3");
+            foreach (ManagementObject drive in searcher.Get())
+            {
+                try
+                {
+                    string driveLetter = drive["DeviceID"]?.ToString();
+                    ulong totalSpace = (ulong)drive["Size"] / GibibyteUL;
+                    ulong freeSpace = (ulong)drive["FreeSpace"] / GibibyteUL;
+
+                    result += $"{driveLetter}\\ {totalSpace} GiB ({freeSpace} GiB free)\n\t\t\t";
+                }
+                catch (Exception ex)
+                {
+                    result += "Error retrieving information for one drive: " + ex.Message;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            result = "Error querying WMI: " + ex.Message;
+        }
+
+        return result.Trim();
     }
 
     public static void DisplayAsciiLogo11()
