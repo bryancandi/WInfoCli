@@ -1,4 +1,10 @@
-﻿using System;
+// WInfoCli
+// Copyright (c) 2025 Bryan Candiliere
+
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+// https://github.com/bryancandi/WInfoCli/blob/master/LICENSE.txt
+
+using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Management;
@@ -78,8 +84,8 @@ public class WInfoCli
         Console.WriteLine($"User Name:\t\t{Environment.UserName}");
         Console.WriteLine($"User Domain Name:\t{Environment.UserDomainName}");
         Console.WriteLine($"Machine Name:\t\t{Environment.MachineName}");
-        Console.WriteLine($"Application Data:\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}");
         Console.WriteLine($"User Profile:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}");
+        Console.WriteLine($"Application Data:\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}");        
         //Console.WriteLine($"Desktop:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}");
         //Console.WriteLine($"My Documents:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}");
         //Console.WriteLine($"My Music:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyMusic)}");
@@ -143,7 +149,6 @@ public class WInfoCli
                     {
                         return model;
                     }
-
                 }
             }
             return "Unknown machine type";
@@ -212,7 +217,6 @@ public class WInfoCli
     public static string GetDiskInformation()
     {
         string result = "";
-
         try
         {
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_LogicalDisk WHERE DriveType = 3");
@@ -223,7 +227,6 @@ public class WInfoCli
                     string driveLetter = drive["DeviceID"]?.ToString();
                     ulong totalSpace = (ulong)drive["Size"] / GibibyteUL;
                     ulong freeSpace = (ulong)drive["FreeSpace"] / GibibyteUL;
-
                     result += $"{driveLetter}\\ {totalSpace} GiB ({freeSpace} GiB free)\n\t\t\t";
                 }
                 catch (Exception ex)
@@ -236,7 +239,6 @@ public class WInfoCli
         {
             result = "Error querying WMI: " + ex.Message;
         }
-
         return result.Trim();
     }
 
@@ -280,54 +282,38 @@ public class WInfoCli
     {
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Write(@"//////////  ");
-
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(@"//////////");
-
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Write(@"//////////  ");
-
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(@"//////////");
-
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Write(@"//////////  ");
-
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(@"//////////");
-
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Write(@"//////////  ");
-
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(@"//////////");
-
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Write(@"
 //////////  ");
-
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine(@"//////////");
-
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Write(@"//////////  ");
-
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine(@"//////////");
-
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Write(@"//////////  ");
-
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine(@"//////////");
-
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Write(@"//////////  ");
-
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine(@"//////////
 ");
-
         Console.ResetColor();
     }
 
