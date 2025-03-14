@@ -136,7 +136,6 @@ public class WInfoCli
                 {
                     string manufacturer = wmi["Manufacturer"]?.ToString().Trim();
                     string model = wmi["Model"]?.ToString().Trim();
-
                     if (!string.IsNullOrEmpty(manufacturer) && !string.IsNullOrEmpty(model))
                     {
                         return $"{manufacturer} {model}";
