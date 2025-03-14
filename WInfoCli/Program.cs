@@ -20,6 +20,37 @@ public class WInfoCli
 
     public static void Main(string[] args)
     {
+        if (args.Contains("--help") || args.Contains("-h") || args.Contains("/h") || args.Contains("/H") || args.Contains("/?"))
+        {
+            Console.WriteLine();
+            Console.WriteLine("Usage: WInfoCli [options]");
+            Console.WriteLine("Options:");
+            Console.WriteLine("  --logo1  Display Windows 11 style ASCII logo");
+            Console.WriteLine("  --logo2  Display Windows 10 style ASCII logo");
+            Console.WriteLine("  --logo3  Display classic style Windows ASCII logo");
+            Console.WriteLine("  --help, -h  Show this help message");
+            Console.WriteLine();
+            return;
+        }
+
+        if (args.Contains("--logo1"))
+        {
+            DisplayAsciiLogo11();
+        }
+        else if (args.Contains("--logo2"))
+        {
+            DisplayAsciiLogo10();
+        }
+        else if (args.Contains("--logo3"))
+        {
+            DisplayAsciiLogoColor();
+        }
+        else
+        {
+            Console.ResetColor();
+            Console.WriteLine();
+        }
+
         DisplayComputerInfo();
         DisplaySystemInfo();
         DisplayUserInfo();
@@ -237,8 +268,12 @@ public class WInfoCli
 //////////  //////////
 //////////  //////////
 //////////  //////////
-";
-        Console.WriteLine(asciiLogo);
+    ";
+        foreach (string line in asciiLogo.Split('\n'))
+        {
+            Console.WriteLine(line);
+            Thread.Sleep(150);
+        }
         Console.ResetColor();
     }
 
@@ -256,46 +291,59 @@ public class WInfoCli
   //////////  //////////
  //////////  //////////
 ";
-        Console.WriteLine(asciiLogo);
+        foreach (string line in asciiLogo.Split('\n'))
+        {
+            Console.WriteLine(line);
+            Thread.Sleep(150);
+        }
         Console.ResetColor();
     }
 
     public static void DisplayAsciiLogoColor()
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.Write(@"//////////  ");
+        Console.Write(@"
+//////////  ");
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(@"//////////");
+        Thread.Sleep(150);
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Write(@"//////////  ");
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(@"//////////");
+        Thread.Sleep(150);
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Write(@"//////////  ");
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(@"//////////");
+        Thread.Sleep(150);
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Write(@"//////////  ");
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(@"//////////");
+        Thread.Sleep(150);
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Write(@"
 //////////  ");
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine(@"//////////");
+        Thread.Sleep(150);
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Write(@"//////////  ");
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine(@"//////////");
+        Thread.Sleep(150);
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Write(@"//////////  ");
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine(@"//////////");
+        Thread.Sleep(150);
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Write(@"//////////  ");
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine(@"//////////
 ");
+        Thread.Sleep(150);
         Console.ResetColor();
     }
 
@@ -303,6 +351,5 @@ public class WInfoCli
     {
         Console.WriteLine("Press any key to exit.");
         Console.ReadLine();
-        DisplayAsciiLogoColor();
     }
 }
