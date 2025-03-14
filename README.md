@@ -1,3 +1,3 @@
 # WInfoCli
 
-![Screenshot 2025-03-13 092845](https://github.com/user-attachments/assets/83e2037c-b19d-4d23-9a94-e36c61dc1d77)
+![Screenshot 2025-03-13 200819](https://github.com/user-attachments/assets/44e2eaf2-eb8b-48df-bbcb-fbf32a71d58b)
