@@ -66,8 +66,6 @@ public class WInfoCli
         }
         Console.WriteLine($"Windows Directory:\t{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}");
         Console.WriteLine($"System Directory:\t{Environment.SystemDirectory}");
-        //string[] drives = Environment.GetLogicalDrives();
-        //Console.WriteLine("Logical Drives:\t\t{0}", String.Join(", ", drives));
         Console.WriteLine($"Logical Drives:\t\t{GetDiskInformation()}");
         int tickCount = Environment.TickCount;
         TimeSpan uptime = TimeSpan.FromMilliseconds(tickCount);
@@ -86,16 +84,11 @@ public class WInfoCli
         Console.WriteLine($"Machine Name:\t\t{Environment.MachineName}");
         Console.WriteLine($"User Profile:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}");
         Console.WriteLine($"Application Data:\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}");        
-        //Console.WriteLine($"Desktop:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}");
-        //Console.WriteLine($"My Documents:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}");
-        //Console.WriteLine($"My Music:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyMusic)}");
-        //Console.WriteLine($"My Pictures:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)}");
-        //Console.WriteLine($"My Videos:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyVideos)}");
         Console.WriteLine(LineBreak);
         Console.WriteLine();
     }
 
-    public static string HKLM_GetString(string path, string key)
+    public static string GetRegistryString(string path, string key)
     {
         try
         {
@@ -111,17 +104,9 @@ public class WInfoCli
                 }
             }
         }
-        catch (System.Security.SecurityException)
+        catch (Exception)
         {
-            Console.WriteLine("Security Exception: Insufficient permissions to access registry.");
-        }
-        catch (System.IO.IOException)
-        {
-            Console.WriteLine("IO Exception: Error reading registry.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            return "";
         }
         return "";
     }
@@ -154,18 +139,16 @@ public class WInfoCli
         }
         catch (Exception ex)
         {
-            return $"Error: {ex.Message}";
+            return $"Error querying WMI: {ex.Message}";
         }
     }
 
     public static string GetFriendlyOsName()
     {
-        string ProductName = HKLM_GetString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ProductName");
-        int osBuildNumer = Environment.OSVersion.Version.Build;
+        string ProductName = GetRegistryString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ProductName");
         if (!string.IsNullOrEmpty(ProductName))
         {
             string displayName = (ProductName.StartsWith("Microsoft") ? "" : "Microsoft ") + ProductName;
-            //if (osBuildNumer >= 22000 && ProductName.Contains("Windows 10"))
             if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)) // Windows 11 check
             {
                 displayName = displayName.Replace("Windows 10", "Windows 11");
@@ -230,13 +213,13 @@ public class WInfoCli
                 }
                 catch (Exception ex)
                 {
-                    result += "Error retrieving information for one drive: " + ex.Message;
+                    result += $"Error retrieving information for one drive: {ex.Message}";
                 }
             }
         }
         catch (Exception ex)
         {
-            result = "Error querying WMI: " + ex.Message;
+            result = $"Error querying WMI: {ex.Message}";
         }
         return result.Trim();
     }
