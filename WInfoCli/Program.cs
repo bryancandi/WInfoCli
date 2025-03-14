@@ -322,25 +322,25 @@ public class WInfoCli
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(@"//////////");
         Thread.Sleep(150);
-        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.ForegroundColor = ConsoleColor.Cyan;
         Console.Write(@"
 //////////  ");
-        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(@"//////////");
         Thread.Sleep(150);
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write(@"//////////  ");
         Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.Write(@"//////////  ");
+        Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(@"//////////");
         Thread.Sleep(150);
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write(@"//////////  ");
         Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.Write(@"//////////  ");
+        Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(@"//////////");
         Thread.Sleep(150);
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write(@"//////////  ");
         Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.Write(@"//////////  ");
+        Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(@"//////////
 ");
         Thread.Sleep(150);
