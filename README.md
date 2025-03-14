@@ -1,5 +1,17 @@
 # WInfoCli
 🟥 🟩\
-🟦 🟨\
+🟦 🟨
+
+```
+Usage: WInfoCli [options]
+Options:
+  --logo1  Display Windows 11 style ASCII logo
+  --logo2  Display Windows 10 style ASCII logo
+  --logo3  Display classic style Windows ASCII logo
+  --help, -h  Show this help message
+```
+`WInfoCli.exe`\
+![WInfoCli](/Screenshots/WInfoCli.png)\
 \
-![Screenshot 2025-03-13 200819](https://github.com/user-attachments/assets/44e2eaf2-eb8b-48df-bbcb-fbf32a71d58b)
+`WInfoCli.exe --logo3`\
+![WInfoCli-logo](/Screenshots/WInfoCli-logo.png)
