@@ -15,3 +15,6 @@ Options:
 \
 `WInfoCli.exe --logo3`\
 ![WInfoCli-logo](/Screenshots/WInfoCli-logo.png)
+\
+\
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/bryancandi/WInfoCli/total?style=flat&label=Downloads&color=cyan)
