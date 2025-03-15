@@ -93,7 +93,7 @@ public class WInfoCli
         Console.WriteLine($"OS Version String:\t{Environment.OSVersion.VersionString}");
         if (!string.IsNullOrEmpty(Environment.OSVersion.ServicePack))
         {
-            Console.WriteLine($"Service Pack:\t{Environment.OSVersion.ServicePack}");
+            Console.WriteLine($"Service Pack:\t\t{Environment.OSVersion.ServicePack}");
         }
         Console.WriteLine($"Windows Directory:\t{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}");
         Console.WriteLine($"System Directory:\t{Environment.SystemDirectory}");
