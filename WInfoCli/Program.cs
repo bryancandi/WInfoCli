@@ -22,13 +22,24 @@ public class WInfoCli
     {
         if (args.Contains("--help") || args.Contains("-h") || args.Contains("/h") || args.Contains("/H") || args.Contains("/?"))
         {
+            Console.WriteLine($"WInfoCli - Windows Information Command Line Tool");
+            Console.WriteLine("Copyright (c) 2025 Bryan Candiliere");
             Console.WriteLine();
-            Console.WriteLine("Usage: WInfoCli [options]");
+            Console.WriteLine("Usage: WInfoCli.exe [Options]");          
             Console.WriteLine("Options:");
-            Console.WriteLine("  --logo1  Display Windows 11 style ASCII logo");
-            Console.WriteLine("  --logo2  Display Windows 10 style ASCII logo");
-            Console.WriteLine("  --logo3  Display classic style Windows ASCII logo");
-            Console.WriteLine("  --help, -h  Show this help message");
+            Console.WriteLine("  --help, -h\t\tShow this help message");
+            Console.WriteLine("  --version, -v\t\tShow version information");
+            Console.WriteLine("  --logo1\t\tDisplay Windows 11 style ASCII logo");
+            Console.WriteLine("  --logo2\t\tDisplay Windows 10 style ASCII logo");
+            Console.WriteLine("  --logo3\t\tDisplay classic style Windows ASCII logo");
+            Console.WriteLine();
+            return;
+        }
+
+        if (args.Contains("--version") || args.Contains("-v"))
+        {
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            Console.WriteLine($"WInfoCli {version}");
             Console.WriteLine();
             return;
         }
@@ -322,23 +333,23 @@ public class WInfoCli
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(@"//////////");
         Thread.Sleep(150);
-        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.ForegroundColor = ConsoleColor.Blue;
         Console.Write(@"
 //////////  ");
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(@"//////////");
         Thread.Sleep(150);
-        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.ForegroundColor = ConsoleColor.Blue;
         Console.Write(@"//////////  ");
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(@"//////////");
         Thread.Sleep(150);
-        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.ForegroundColor = ConsoleColor.Blue;
         Console.Write(@"//////////  ");
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(@"//////////");
         Thread.Sleep(150);
-        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.ForegroundColor = ConsoleColor.Blue;
         Console.Write(@"//////////  ");
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(@"//////////
