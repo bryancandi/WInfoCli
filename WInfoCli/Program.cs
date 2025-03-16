@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Management;
 using System.Diagnostics;
 using Microsoft.Win32;
+using System.Linq.Expressions;
 
 public class WInfoCli
 {
@@ -25,7 +26,7 @@ public class WInfoCli
             Console.WriteLine($"WInfoCli - Windows Information Command Line Tool");
             Console.WriteLine("Copyright (c) 2025 Bryan Candiliere");
             Console.WriteLine();
-            Console.WriteLine("Usage: WInfoCli.exe [Options]");          
+            Console.WriteLine("Usage: WInfoCli.exe [Options]");
             Console.WriteLine("Options:");
             Console.WriteLine("  --help, -h\t\tShow this help message");
             Console.WriteLine("  --version, -v\t\tShow version information");
@@ -73,8 +74,8 @@ public class WInfoCli
         Console.WriteLine("Computer Information");
         Console.WriteLine(LineBreak);
         Console.WriteLine($"Host:\t\t\t{GetComputerModel()}");
-        string cpuName = GetCPUName();
-        Console.WriteLine($"Processor:\t\t{cpuName}");
+        Console.WriteLine($"Processor:\t\t{GetCPUName()}");
+        Console.WriteLine($"Graphics:\t\t{GetGPUName()}");
         string processorArchitecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
         if (!string.IsNullOrEmpty(processorArchitecture))
         {
@@ -97,15 +98,15 @@ public class WInfoCli
     {
         Console.WriteLine("System Information");
         Console.WriteLine(LineBreak);
-        string osName = GetFriendlyOsName();
         string osBits = (Environment.Is64BitOperatingSystem) ? "64-bit" : "32-bit";
-        Console.WriteLine($"OS:\t\t\t{osName} ({osBits}) Build {Environment.OSVersion.Version.Build}");
+        Console.WriteLine($"OS:\t\t\t{GetFriendlyOsName()} ({osBits}) Build {Environment.OSVersion.Version.Build}");
         Console.WriteLine($"OS Platform:\t\t{Environment.OSVersion.Platform}");
         Console.WriteLine($"OS Version String:\t{Environment.OSVersion.VersionString}");
         if (!string.IsNullOrEmpty(Environment.OSVersion.ServicePack))
         {
             Console.WriteLine($"Service Pack:\t\t{Environment.OSVersion.ServicePack}");
         }
+        Console.WriteLine($"Windows Shell:\t\t{GetWindowsShell()}");
         Console.WriteLine($"Windows Directory:\t{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}");
         Console.WriteLine($"System Directory:\t{Environment.SystemDirectory}");
         Console.WriteLine($"Logical Drives:\t\t{GetDiskInformation()}");
@@ -125,32 +126,9 @@ public class WInfoCli
         Console.WriteLine($"User Domain Name:\t{Environment.UserDomainName}");
         Console.WriteLine($"Machine Name:\t\t{Environment.MachineName}");
         Console.WriteLine($"User Profile:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}");
-        Console.WriteLine($"Application Data:\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}");        
+        Console.WriteLine($"Application Data:\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}");
         Console.WriteLine(LineBreak);
         Console.WriteLine();
-    }
-
-    public static string GetRegistryString(string path, string key)
-    {
-        try
-        {
-            using (RegistryKey registryKey = Registry.LocalMachine.OpenSubKey(path))
-            {
-                if (registryKey != null)
-                {
-                    object value = registryKey.GetValue(key);
-                    if (value is string stringValue)
-                    {
-                        return stringValue;
-                    }
-                }
-            }
-        }
-        catch (Exception)
-        {
-            return "";
-        }
-        return "";
     }
 
     public static string GetComputerModel()
@@ -185,32 +163,45 @@ public class WInfoCli
         }
     }
 
-    public static string GetFriendlyOsName()
-    {
-        string ProductName = GetRegistryString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ProductName");
-        if (!string.IsNullOrEmpty(ProductName))
-        {
-            string displayName = (ProductName.StartsWith("Microsoft") ? "" : "Microsoft ") + ProductName;
-            if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)) // Windows 11 check
-            {
-                displayName = displayName.Replace("Windows 10", "Windows 11");
-            }
-            return displayName;
-        }
-        return "Microsoft Windows";
-    }
-
     static string GetCPUName()
     {
         string cpuName = string.Empty;
-        using (var searcher = new ManagementObjectSearcher("SELECT Name FROM Win32_Processor"))
+        try
         {
-            foreach (var obj in searcher.Get())
+            using (var searcher = new ManagementObjectSearcher("SELECT Name FROM Win32_Processor"))
             {
-                cpuName = obj["Name"].ToString();
+                foreach (var obj in searcher.Get())
+                {
+                    cpuName = obj["Name"].ToString();
+                }
             }
         }
+        catch (Exception)
+        {
+            return "Unknown";
+        }
         return cpuName;
+    }
+
+    static string GetGPUName()
+    {
+        string gpuName = string.Empty;
+        try
+        {
+            using (var searcher = new ManagementObjectSearcher("SELECT Name FROM Win32_VideoController"))
+            {
+                foreach (var obj in searcher.Get())
+                {
+                    // List each GPU on a new line
+                    gpuName += $"{obj["Name"].ToString()}\n\t\t\t";
+                }
+            }
+        }
+        catch (Exception)
+        {
+            return "Unknown";
+        }
+        return gpuName.Trim();
     }
 
     public static ulong GetTotalPhysicalMemory()
@@ -238,6 +229,41 @@ public class WInfoCli
         return 0;
     }
 
+    public static string GetFriendlyOsName()
+    {
+        string ProductName = GetRegistryString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ProductName");
+        if (!string.IsNullOrEmpty(ProductName))
+        {
+            string displayName = (ProductName.StartsWith("Microsoft") ? "" : "Microsoft ") + ProductName;
+            if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)) // Windows 11 check
+            {
+                displayName = displayName.Replace("Windows 10", "Windows 11");
+            }
+            return displayName;
+        }
+        return "Microsoft Windows";
+    }
+
+    public static string GetWindowsShell()
+    {
+        try
+        {
+            int currentProcessId = Process.GetCurrentProcess().Id;
+            ManagementObjectSearcher query = new ManagementObjectSearcher($"SELECT * FROM Win32_Process WHERE ProcessId = {currentProcessId}");
+            foreach (ManagementObject process in query.Get())
+            {
+                int parentProcessId = Convert.ToInt32(process["ParentProcessId"]);
+                Process parentProcess = Process.GetProcessById(parentProcessId);
+                return parentProcess.ProcessName;
+            }
+        }
+        catch (Exception)
+        {
+            return "Unknown";
+        }
+        return "Unknown";
+    }
+
     public static string GetDiskInformation()
     {
         string result = "";
@@ -251,6 +277,7 @@ public class WInfoCli
                     string driveLetter = drive["DeviceID"]?.ToString();
                     ulong totalSpace = (ulong)drive["Size"] / GibibyteUL;
                     ulong freeSpace = (ulong)drive["FreeSpace"] / GibibyteUL;
+                    // List each drive on a new line
                     result += $"{driveLetter}\\ {totalSpace} GiB ({freeSpace} GiB free)\n\t\t\t";
                 }
                 catch (Exception ex)
@@ -266,6 +293,31 @@ public class WInfoCli
         return result.Trim();
     }
 
+    // Helper Methods
+    public static string GetRegistryString(string path, string key)
+    {
+        try
+        {
+            using (RegistryKey registryKey = Registry.LocalMachine.OpenSubKey(path))
+            {
+                if (registryKey != null)
+                {
+                    object value = registryKey.GetValue(key);
+                    if (value is string stringValue)
+                    {
+                        return stringValue;
+                    }
+                }
+            }
+        }
+        catch (Exception)
+        {
+            return "";
+        }
+        return "";
+    }
+
+    // ASCII Logo Methods
     public static void DisplayAsciiLogo11()
     {
         Console.ForegroundColor = ConsoleColor.Blue;
