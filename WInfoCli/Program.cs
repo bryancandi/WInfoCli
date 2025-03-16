@@ -6,11 +6,9 @@
 
 using System;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Management;
 using System.Diagnostics;
 using Microsoft.Win32;
-using System.Linq.Expressions;
 
 public class WInfoCli
 {
