@@ -335,8 +335,8 @@ public class WInfoCli
             {
                 dirs += $"Desktop:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}\n";
                 dirs += $"Documents:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}\n";
-                dirs += $"Music:\t\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyMusic)}\n";
                 dirs += $"Pictures:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)}\n";
+                dirs += $"Music:\t\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyMusic)}\n";
                 dirs += $"Videos:\t\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyVideos)}\n";
             }
             dirs += $"Application Data:\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}";
