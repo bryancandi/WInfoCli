@@ -26,11 +26,13 @@ public class WInfoCli
             Console.WriteLine();
             Console.WriteLine("Usage: WInfoCli.exe [Options]");
             Console.WriteLine("Options:");
-            Console.WriteLine("  --help, -h\t\tShow this help message");
-            Console.WriteLine("  --version, -v\t\tShow version information");
-            Console.WriteLine("  --logo1\t\tDisplay Windows 11 style ASCII logo");
-            Console.WriteLine("  --logo2\t\tDisplay Windows 10 style ASCII logo");
-            Console.WriteLine("  --logo3\t\tDisplay classic style Windows ASCII logo");
+            Console.WriteLine("    --help, -h\n\tDisplay this help message.\n");
+            Console.WriteLine("    --version, -v\n\tDisplay application version information.\n");
+            Console.WriteLine("    --no-special-dirs, -n\n\tDo not display special user directories.\n");
+            Console.WriteLine("    --show-paths, -p\n\tDisplay environment PATHs.\n");
+            Console.WriteLine("    --logo1\n\tDisplay Windows 11 style ASCII logo.\n");
+            Console.WriteLine("    --logo2\n\tDisplay Windows 10 style ASCII logo.\n");
+            Console.WriteLine("    --logo3\n\tDisplay classic style Windows ASCII logo.");
             Console.WriteLine();
             return;
         }
@@ -38,10 +40,13 @@ public class WInfoCli
         if (args.Contains("--version") || args.Contains("-v"))
         {
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
-            Console.WriteLine($"WInfoCli {version}");
-            Console.WriteLine();
+            Console.WriteLine($"WInfoCli - Windows Information Command Line Tool\nVersion: {version?.ToString() ?? "unknown version"}");
             return;
         }
+
+        bool showSpecialDirs = !args.Contains("--no-special-dirs") && !args.Contains("-n");
+
+        bool showPaths = args.Contains("--show-paths") || args.Contains("-p");
 
         if (args.Contains("--logo1"))
         {
@@ -63,7 +68,8 @@ public class WInfoCli
 
         DisplayComputerInfo();
         DisplaySystemInfo();
-        DisplayUserInfo();
+        DisplayUserInfo(showSpecialDirs);
+        DisplayEnvironmentPaths(showPaths);
         Exit();
     }
 
@@ -74,7 +80,7 @@ public class WInfoCli
         Console.WriteLine($"Host:\t\t\t{GetComputerModel()}");
         Console.WriteLine($"Processor:\t\t{GetCPUName()}");
         Console.WriteLine($"Graphics:\t\t{GetGPUName()}");
-        string processorArchitecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
+        string processorArchitecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE") ?? string.Empty;
         if (!string.IsNullOrEmpty(processorArchitecture))
         {
             Console.WriteLine($"Processor Architecture:\t{processorArchitecture}");
@@ -116,17 +122,43 @@ public class WInfoCli
         Console.WriteLine();
     }
 
-    public static void DisplayUserInfo()
+    public static void DisplayUserInfo(bool showSpecialDirs)
     {
         Console.WriteLine("User Information");
         Console.WriteLine(LineBreak);
         Console.WriteLine($"User Name:\t\t{Environment.UserName}");
         Console.WriteLine($"User Domain Name:\t{Environment.UserDomainName}");
         Console.WriteLine($"Machine Name:\t\t{Environment.MachineName}");
-        Console.WriteLine($"User Profile:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}");
-        Console.WriteLine($"Application Data:\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}");
+        Console.WriteLine(GetUserDirs(showSpecialDirs));
         Console.WriteLine(LineBreak);
         Console.WriteLine();
+    }
+
+    public static void DisplayEnvironmentPaths(bool showPaths)
+    {
+        if (showPaths)
+        {
+            Console.WriteLine("Environment PATHs");
+            Console.WriteLine(LineBreak);
+            // Get user path
+            string userPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User) ?? string.Empty;
+            Console.WriteLine("User PATH:");
+            string[] userPaths = userPath.Split(';');
+            foreach (string path in userPaths)
+            {
+                Console.WriteLine($"    {path}");
+            }
+            // Get system path
+            string systemPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine) ?? string.Empty;
+            Console.WriteLine("System PATH:");
+            string[] systemPaths = systemPath.Split(';');
+            foreach (string path in systemPaths)
+            {
+                Console.WriteLine($"    {path}");
+            }
+            Console.WriteLine(LineBreak);
+            Console.WriteLine();
+        }
     }
 
     public static string GetComputerModel()
@@ -153,11 +185,11 @@ public class WInfoCli
                     }
                 }
             }
-            return "Unknown machine type";
+            return "Unknown";
         }
         catch (Exception ex)
         {
-            return $"Error querying WMI: {ex.Message}";
+            return $"Error retrieving model information: {ex.Message}";
         }
     }
 
@@ -273,25 +305,50 @@ public class WInfoCli
                 try
                 {
                     string driveLetter = drive["DeviceID"]?.ToString();
+                    string fileSystem = drive["FileSystem"]?.ToString();
                     ulong totalSpace = (ulong)drive["Size"] / GibibyteUL;
                     ulong freeSpace = (ulong)drive["FreeSpace"] / GibibyteUL;
                     // List each drive on a new line
-                    result += $"{driveLetter}\\ {totalSpace} GiB ({freeSpace} GiB free)\n\t\t\t";
+                    result += $"{driveLetter}\\ {totalSpace} GiB ({freeSpace} GiB free) - {fileSystem}\n\t\t\t";
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    result += $"Error retrieving information for one drive: {ex.Message}";
+                    // Skip this drive if there is an error
+                    result += "";
                 }
             }
         }
         catch (Exception ex)
         {
-            result = $"Error querying WMI: {ex.Message}";
+            result += $"Error retrieving drive information: {ex.Message}";
         }
         return result.Trim();
     }
 
-    // Helper Methods
+    public static string GetUserDirs(bool showSpecialDirs)
+    {
+        string dirs = string.Empty;
+        try
+        {
+            dirs += $"User Profile:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\n";
+            if (showSpecialDirs)
+            {
+                dirs += $"Desktop:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}\n";
+                dirs += $"Documents:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}\n";
+                dirs += $"Music:\t\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyMusic)}\n";
+                dirs += $"Pictures\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)}\n";
+                dirs += $"Videos:\t\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyVideos)}\n";
+            }
+            dirs += $"Application Data:\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}";
+        }
+        catch (Exception)
+        {
+            return "";
+        }
+        return dirs.Trim();
+    }
+
+    // Helper Method(s)
     public static string GetRegistryString(string path, string key)
     {
         try
@@ -315,7 +372,7 @@ public class WInfoCli
         return "";
     }
 
-    // ASCII Logo Methods
+    // ASCII Logos
     public static void DisplayAsciiLogo11()
     {
         Console.ForegroundColor = ConsoleColor.Blue;
@@ -411,6 +468,6 @@ public class WInfoCli
     public static void Exit()
     {
         Console.WriteLine("Press any key to exit.");
-        Console.ReadLine();
+        Console.ReadKey(true);
     }
 }
