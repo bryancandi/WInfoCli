@@ -30,7 +30,7 @@ Options:
 ![WInfoCli](/Screenshots/WInfoCli.png)\
 \
 `WInfoCli.exe --logo3`\
-![WInfoCli-logo](/Screenshots/WInfoCli-logo.png)
+![WInfoCli-logo](/Screenshots/WInfoCli-logo.png)\
 \
 `WInfoCli.exe --show-paths`\
 ![WInfoCli-paths](/Screenshots/WInfoCli-paths.png)
