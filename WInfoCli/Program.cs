@@ -39,15 +39,18 @@ public class WInfoCli
             if (!validArgs.Contains(arg))
             {
                 Console.WriteLine($"Invalid command line argument: {arg}");
-                Console.WriteLine("Please use 'WInfoCli.exe --help' to get a list of supported arguments.");
+                Console.WriteLine("For supported arguments, run: 'WInfoCli.exe --help'.");
                 return;
             }
         }
 
         if (args.Contains("--help") || args.Contains("-h") || args.Contains("/h") || args.Contains("/H") || args.Contains("/?"))
         {
+            int startYear = 2025;
+            int currentYear = DateTime.Now.Year;
+            string copyrightYear = startYear == currentYear ? $"{startYear}" : $"{startYear}-{currentYear}";
             Console.WriteLine($"WInfoCli - Windows Information Command Line Tool");
-            Console.WriteLine("Copyright (c) 2025 Bryan Candiliere");
+            Console.WriteLine($"Copyright (c) {copyrightYear} Bryan Candiliere");
             Console.WriteLine();
             Console.WriteLine("Usage: WInfoCli.exe [Options]");
             Console.WriteLine();
