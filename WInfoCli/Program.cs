@@ -23,7 +23,7 @@ public class WInfoCli
         // List of valid arguments
         var validArgs = new HashSet<string>
         {
-            "--help", "-h",
+            "--help", "-h", "/h", "/H", "/?",
             "--version", "-v",
             "--ipv6", "-6",
             "--show-dirs", "-d",
