@@ -29,8 +29,8 @@ public class WInfoCli
             "--show-dirs", "-d",
             "--show-paths", "-p",
             "--logo", "-l",
-            "--logo-win11", "-11",
-            "--logo-win10", "-10"
+            "--logo-win10", "-10",
+            "--logo-win11", "-11"
         };
 
         // Check for invalid arguments
