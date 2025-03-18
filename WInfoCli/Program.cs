@@ -9,6 +9,9 @@ using System.Reflection;
 using System.Management;
 using System.Diagnostics;
 using Microsoft.Win32;
+using System.Net;
+using static System.Net.Mime.MediaTypeNames;
+using System.Net.NetworkInformation;
 
 public class WInfoCli
 {
@@ -28,8 +31,9 @@ public class WInfoCli
             Console.WriteLine("Options:");
             Console.WriteLine("    --help, -h\n\tDisplay this help message.\n");
             Console.WriteLine("    --version, -v\n\tDisplay application version information.\n");
-            Console.WriteLine("    --no-special-dirs, -n\n\tDo not display special user directories.\n");
-            Console.WriteLine("    --show-paths, -p\n\tDisplay environment PATHs.\n");
+            Console.WriteLine("    --ipv6, -6\n\tDisplay IPv6 addresses.\n");
+            Console.WriteLine("    --special-dirs, -sd\n\tDisplay special user directories.\n");
+            Console.WriteLine("    --show-paths, -sp\n\tDisplay environment PATHs.\n");
             Console.WriteLine("    --logo1\n\tDisplay Windows 11 style ASCII logo.\n");
             Console.WriteLine("    --logo2\n\tDisplay Windows 10 style ASCII logo.\n");
             Console.WriteLine("    --logo3\n\tDisplay classic style Windows ASCII logo.");
@@ -44,9 +48,11 @@ public class WInfoCli
             return;
         }
 
-        bool showSpecialDirs = !args.Contains("--no-special-dirs") && !args.Contains("-n");
+        bool showIPv6 = args.Contains("--ipv6") || args.Contains("-6");
 
-        bool showPaths = args.Contains("--show-paths") || args.Contains("-p");
+        bool showSpecialDirs = args.Contains("--no-special-dirs") || args.Contains("-sd");
+
+        bool showPaths = args.Contains("--show-paths") || args.Contains("-sp");
 
         if (args.Contains("--logo1"))
         {
@@ -67,7 +73,7 @@ public class WInfoCli
         }
 
         DisplayComputerInfo();
-        DisplaySystemInfo();
+        DisplaySystemInfo(showIPv6);
         DisplayUserInfo(showSpecialDirs);
         DisplayEnvironmentPaths(showPaths);
         Exit();
@@ -106,7 +112,7 @@ public class WInfoCli
         Console.WriteLine();
     }
 
-    public static void DisplaySystemInfo()
+    public static void DisplaySystemInfo(bool showIPv6)
     {
         Console.WriteLine("System Information");
         Console.WriteLine(LineBreak);
@@ -122,6 +128,8 @@ public class WInfoCli
         Console.WriteLine($"Windows Directory:\t{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}");
         Console.WriteLine($"System Directory:\t{Environment.SystemDirectory}");
         Console.WriteLine($"Logical Drives:\t\t{GetDiskInformation()}");
+        var (ipv4, ipv6) = GetHostIPAddresses(showIPv6);
+        Console.WriteLine($"IP Addresses:\t\t{ipv4 ?? "No IPv4 address found"}\n\t\t\t{ipv6 ?? "No IPv6 address found"}".Trim());
         Console.WriteLine($"Display Resolution:\t{GetDisplayResolution()}");
         int tickCount = Environment.TickCount;
         TimeSpan uptime = TimeSpan.FromMilliseconds(tickCount);
@@ -319,15 +327,16 @@ public class WInfoCli
                             status = parsedStatus switch
                             {
                                 1 => "Discharging",
-                                2 => "Charging",
+                                2 => "AC Power",
                                 3 => "Fully Charged",
                                 4 => "Low",
                                 5 => "Critical",
-                                6 => "Charging and High",
-                                7 => "Charging and Low",
-                                8 => "Charging and Critical",
-                                9 => "Undefined",
-                                10 => "Partially Charged",
+                                6 => "Charging",
+                                7 => "Charging and High",
+                                8 => "Charging and Low",
+                                9 => "Charging and Critical",
+                                10 => "Undefined",
+                                11 => "Partially Charged",
                                 _ => "Unknown"
                             };
                         }
@@ -439,6 +448,29 @@ public class WInfoCli
         return driveInfo.Trim();
     }
 
+    public static (string, string) GetHostIPAddresses(bool showIPv6)
+    {
+        string ipv4 = string.Empty;
+        string ipv6 = string.Empty;
+        string hostName = Dns.GetHostName(); // Get the host name
+        var ipAddresses = Dns.GetHostAddresses(hostName); // Get all IP addresses for the host
+        foreach (var ip in ipAddresses)
+        {
+            if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) // IPv4
+            {
+                ipv4 += $"{ip.ToString()}\n\t\t\t";
+            }
+            if (showIPv6)
+            {
+                if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) // IPv6
+                {
+                    ipv6 += $"{ip.ToString()}\n\t\t\t";
+                }
+            }
+        }
+        return (ipv4.Trim(), ipv6.Trim());
+    }
+
     public static string GetDisplayResolution()
     {
         string displayInfo = string.Empty;
@@ -503,7 +535,8 @@ public class WInfoCli
                 dirs += $"Music:\t\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyMusic)}\n";
                 dirs += $"Videos:\t\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyVideos)}\n";
             }
-            dirs += $"Application Data:\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}";
+            dirs += $"Application Data:\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\n";
+            dirs += $"Working Directory:\t{Environment.CurrentDirectory}\n";
         }
         catch (Exception)
         {
