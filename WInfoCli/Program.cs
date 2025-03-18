@@ -20,21 +20,48 @@ public class WInfoCli
 
     public static void Main(string[] args)
     {
+        // List of valid arguments
+        var validArgs = new HashSet<string>
+        {
+            "--help", "-h",
+            "--version", "-v",
+            "--ipv6", "-6",
+            "--show-dirs", "-d",
+            "--show-paths", "-p",
+            "--logo", "-l",
+            "--logo-win11", "-11",
+            "--logo-win10", "-10"
+        };
+
+        // Check for invalid arguments
+        foreach (var arg in args)
+        {
+            if (!validArgs.Contains(arg))
+            {
+                Console.WriteLine($"Invalid command line argument: {arg}");
+                Console.WriteLine("Please use 'WInfoCli.exe --help' to get a list of supported arguments.");
+                return;
+            }
+        }
+
         if (args.Contains("--help") || args.Contains("-h") || args.Contains("/h") || args.Contains("/H") || args.Contains("/?"))
         {
             Console.WriteLine($"WInfoCli - Windows Information Command Line Tool");
             Console.WriteLine("Copyright (c) 2025 Bryan Candiliere");
             Console.WriteLine();
             Console.WriteLine("Usage: WInfoCli.exe [Options]");
-            Console.WriteLine("Options:");
-            Console.WriteLine("    --help, -h\n\tDisplay this help message.\n");
+            Console.WriteLine();
+            Console.WriteLine("General Options:");
+            Console.WriteLine("    --help, -h\n\tDisplay this help message.");
             Console.WriteLine("    --version, -v\n\tDisplay application version information.\n");
-            Console.WriteLine("    --ipv6, -6\n\tDisplay IPv6 addresses.\n");
-            Console.WriteLine("    --special-dirs, -sd\n\tDisplay special user directories.\n");
-            Console.WriteLine("    --show-paths, -sp\n\tDisplay environment PATHs.\n");
-            Console.WriteLine("    --logo1\n\tDisplay Windows 11 style ASCII logo.\n");
-            Console.WriteLine("    --logo2\n\tDisplay Windows 10 style ASCII logo.\n");
-            Console.WriteLine("    --logo3\n\tDisplay classic style Windows ASCII logo.");
+            Console.WriteLine("Display Options:");
+            Console.WriteLine("    --ipv6, -6\n\tDisplay IPv6 addresses.");
+            Console.WriteLine("    --show-dirs, -d\n\tDisplay special user directories (e.g., Documents, Desktop).");
+            Console.WriteLine("    --show-paths, -p\n\tDisplay environment PATH variables for the current system.\n");
+            Console.WriteLine("Logo Options:");
+            Console.WriteLine("    --logo, -l\n\tDisplay classic style Windows ASCII logo.");
+            Console.WriteLine("    --logo-win10, -10\n\tDisplay Windows 10 style ASCII logo.");
+            Console.WriteLine("    --logo-win11, -11\n\tDisplay Windows 11 style ASCII logo.");
             Console.WriteLine();
             return;
         }
@@ -48,21 +75,21 @@ public class WInfoCli
 
         bool showIPv6 = args.Contains("--ipv6") || args.Contains("-6");
 
-        bool showSpecialDirs = args.Contains("--no-special-dirs") || args.Contains("-sd");
+        bool showSpecialDirs = args.Contains("--show-dirs") || args.Contains("-d");
 
-        bool showPaths = args.Contains("--show-paths") || args.Contains("-sp");
+        bool showPaths = args.Contains("--show-paths") || args.Contains("-p");
 
-        if (args.Contains("--logo1"))
+        if (args.Contains("--logo") || args.Contains("-l"))
         {
-            DisplayAsciiLogo11();
+            DisplayAsciiLogoColor();
         }
-        else if (args.Contains("--logo2"))
+        else if (args.Contains("--logo-win10") || args.Contains("-10"))
         {
             DisplayAsciiLogo10();
         }
-        else if (args.Contains("--logo3"))
+        else if (args.Contains("--logo-win11") || args.Contains("-11"))
         {
-            DisplayAsciiLogoColor();
+            DisplayAsciiLogo11();
         }
         else
         {
@@ -104,7 +131,7 @@ public class WInfoCli
         }
         else
         {
-            // Do not display battery line if no battery is present
+            // Do not display battery status if no battery is present
         }
         Console.WriteLine(LineBreak);
         Console.WriteLine();
@@ -217,7 +244,8 @@ public class WInfoCli
             {
                 foreach (var obj in searcher.Get())
                 {
-                    cpuName = obj["Name"].ToString();
+                    // List each CPU on a new line
+                    cpuName += $"{obj["Name"].ToString()}\n\t\t\t";
                 }
             }
         }
@@ -225,7 +253,7 @@ public class WInfoCli
         {
             return "Unknown";
         }
-        return cpuName;
+        return cpuName.Trim();
     }
 
     static string GetGPUName()
@@ -436,7 +464,6 @@ public class WInfoCli
                 }
                 // List each drive on a new line and indent with tabs
                 driveInfo += $"{driveLetter}\\ {totalSpace} GiB ({freeSpace} GiB free) - {fileSystem}\n\t\t\t";
-
             }
         }
         catch (Exception ex)
@@ -450,21 +477,43 @@ public class WInfoCli
     {
         string ipv4 = string.Empty;
         string ipv6 = string.Empty;
-        string hostName = Dns.GetHostName(); // Get the host name
-        var ipAddresses = Dns.GetHostAddresses(hostName); // Get all IP addresses for the host
-        foreach (var ip in ipAddresses)
+        try
         {
-            if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) // IPv4
+            string hostName = Dns.GetHostName();
+            var ipAddresses = Dns.GetHostAddresses(hostName); // Get all IP addresses for the host
+            foreach (var ip in ipAddresses)
             {
-                ipv4 += $"{ip.ToString()}\n\t\t\t";
-            }
-            if (showIPv6)
-            {
-                if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) // IPv6
+                try
                 {
-                    ipv6 += $"{ip.ToString()}\n\t\t\t";
+                    if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) // IPv4
+                    {
+                        ipv4 += $"{ip.ToString()}\n\t\t\t";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ipv4 = $"Error retrieving IPv4: {ex.Message}";
+                }
+                if (showIPv6)
+                {
+                    try
+                    {
+                        if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) // IPv6
+                        {
+                            ipv6 += $"{ip.ToString()}\n\t\t\t";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ipv6 = $"Error retrieving IPv6: {ex.Message}";
+                    }
                 }
             }
+        }
+        catch (Exception ex)
+        {
+            ipv4 = $"Error: {ex.Message}";
+            ipv6 = showIPv6 ? $"Error: {ex.Message}" : ipv6;
         }
         return (ipv4.Trim(), ipv6.Trim());
     }
@@ -536,9 +585,9 @@ public class WInfoCli
             dirs += $"Application Data:\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\n";
             dirs += $"Working Directory:\t{Environment.CurrentDirectory}\n";
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return "";
+            return $"Error retrieving user directory information: {ex.Message}";
         }
         return dirs.Trim();
     }
@@ -591,50 +640,6 @@ public class WInfoCli
     }
 
     // ASCII Logos
-    public static void DisplayAsciiLogo11()
-    {
-        Console.ForegroundColor = ConsoleColor.Blue;
-        string asciiLogo = @"
-//////////  //////////
-//////////  //////////
-//////////  //////////
-//////////  //////////
-
-//////////  //////////
-//////////  //////////
-//////////  //////////
-//////////  //////////
-    ";
-        foreach (string line in asciiLogo.Split('\n'))
-        {
-            Console.WriteLine(line);
-            Thread.Sleep(150);
-        }
-        Console.ResetColor();
-    }
-
-    public static void DisplayAsciiLogo10()
-    {
-        Console.ForegroundColor = ConsoleColor.Blue;
-        string asciiLogo = @"
-    //////////  //////////
-   //////////  //////////
-  //////////  //////////
- //////////  //////////
-
-    //////////  //////////
-   //////////  //////////
-  //////////  //////////
- //////////  //////////
-";
-        foreach (string line in asciiLogo.Split('\n'))
-        {
-            Console.WriteLine(line);
-            Thread.Sleep(150);
-        }
-        Console.ResetColor();
-    }
-
     public static void DisplayAsciiLogoColor()
     {
         Console.ForegroundColor = ConsoleColor.Red;
@@ -680,6 +685,50 @@ public class WInfoCli
         Console.WriteLine(@"//////////
 ");
         Thread.Sleep(150);
+        Console.ResetColor();
+    }
+
+    public static void DisplayAsciiLogo11()
+    {
+        Console.ForegroundColor = ConsoleColor.Blue;
+        string asciiLogo = @"
+//////////  //////////
+//////////  //////////
+//////////  //////////
+//////////  //////////
+
+//////////  //////////
+//////////  //////////
+//////////  //////////
+//////////  //////////
+    ";
+        foreach (string line in asciiLogo.Split('\n'))
+        {
+            Console.WriteLine(line);
+            Thread.Sleep(150);
+        }
+        Console.ResetColor();
+    }
+
+    public static void DisplayAsciiLogo10()
+    {
+        Console.ForegroundColor = ConsoleColor.Blue;
+        string asciiLogo = @"
+    //////////  //////////
+   //////////  //////////
+  //////////  //////////
+ //////////  //////////
+
+    //////////  //////////
+   //////////  //////////
+  //////////  //////////
+ //////////  //////////
+";
+        foreach (string line in asciiLogo.Split('\n'))
+        {
+            Console.WriteLine(line);
+            Thread.Sleep(150);
+        }
         Console.ResetColor();
     }
 

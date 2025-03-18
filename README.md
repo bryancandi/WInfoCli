@@ -4,27 +4,28 @@
 
 ```
 Usage: WInfoCli.exe [Options]
-Options:
+
+General Options:
     --help, -h
         Display this help message.
-
     --version, -v
         Display application version information.
 
-    --no-special-dirs, -n
-        Do not display special user directories.
-
+Display Options:
+    --ipv6, -6
+        Display IPv6 addresses.
+    --show-dirs, -d
+        Display special user directories (e.g., Documents, Desktop).
     --show-paths, -p
-        Display environment PATHs.
+        Display environment PATH variables for the current system.
 
-    --logo1
-        Display Windows 11 style ASCII logo.
-
-    --logo2
-        Display Windows 10 style ASCII logo.
-
-    --logo3
+Logo Options:
+    --logo, -l
         Display classic style Windows ASCII logo.
+    --logo-win10, -10
+        Display Windows 10 style ASCII logo.
+    --logo-win11, -11
+        Display Windows 11 style ASCII logo.
 ```
 `WInfoCli.exe`\
 ![WInfoCli](/Screenshots/WInfoCli.png)\
