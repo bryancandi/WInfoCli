@@ -94,6 +94,14 @@ public class WInfoCli
         Console.WriteLine($"Total Physical Memory:\t{totalPhysicalMemory:F2} GiB");
         double freePhysicalMemory = (double)GetFreePhysicalMemory() / Gibibyte;
         Console.WriteLine($"Free Physical Memory:\t{freePhysicalMemory:F2} GiB");
+        if (IsBatteryPresent())
+        {
+            Console.WriteLine($"Battery Status:\t\t{GetBatteryStatus()}");
+        }
+        else
+        {
+            // Do not display battery line if no battery is present
+        }
         Console.WriteLine(LineBreak);
         Console.WriteLine();
     }
@@ -114,6 +122,7 @@ public class WInfoCli
         Console.WriteLine($"Windows Directory:\t{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}");
         Console.WriteLine($"System Directory:\t{Environment.SystemDirectory}");
         Console.WriteLine($"Logical Drives:\t\t{GetDiskInformation()}");
+        Console.WriteLine($"Display Resolution:\t{GetDisplayResolution()}");
         int tickCount = Environment.TickCount;
         TimeSpan uptime = TimeSpan.FromMilliseconds(tickCount);
         string formattedUptime = string.Format("{0} days, {1} hours, {2} minutes, {3} seconds", uptime.Days, uptime.Hours, uptime.Minutes, uptime.Seconds);
@@ -167,10 +176,10 @@ public class WInfoCli
         {
             using (ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT Manufacturer, Model FROM Win32_ComputerSystem"))
             {
-                foreach (ManagementObject wmi in searcher.Get())
+                foreach (ManagementObject obj in searcher.Get())
                 {
-                    string manufacturer = wmi["Manufacturer"]?.ToString().Trim();
-                    string model = wmi["Model"]?.ToString().Trim();
+                    string manufacturer = obj["Manufacturer"]?.ToString().Trim();
+                    string model = obj["Model"]?.ToString().Trim();
                     if (!string.IsNullOrEmpty(manufacturer) && !string.IsNullOrEmpty(model))
                     {
                         return $"{manufacturer} {model}";
@@ -236,27 +245,107 @@ public class WInfoCli
 
     public static ulong GetTotalPhysicalMemory()
     {
-        using (var searcher = new ManagementObjectSearcher("SELECT TotalPhysicalMemory FROM Win32_ComputerSystem"))
+        ulong totalPhysicalMemory = 0;
+        try
         {
-            foreach (ManagementObject obj in searcher.Get())
+            using (var searcher = new ManagementObjectSearcher("SELECT TotalPhysicalMemory FROM Win32_ComputerSystem"))
             {
-                return (ulong)obj["TotalPhysicalMemory"];
+                foreach (ManagementObject obj in searcher.Get())
+                {
+                    // Check for null and parse the value to ulong or return 0
+                    totalPhysicalMemory = obj?["TotalPhysicalMemory"] != null &&
+                        ulong.TryParse(obj["TotalPhysicalMemory"].ToString(), out ulong parsedValue)
+                        ? parsedValue : 0;
+                }
             }
         }
-        return 0;
+        catch (Exception)
+        {
+            totalPhysicalMemory = 0;
+        }
+        return totalPhysicalMemory;
     }
 
     public static ulong GetFreePhysicalMemory()
     {
-        using (var searcher = new ManagementObjectSearcher("SELECT FreePhysicalMemory FROM Win32_OperatingSystem"))
+        ulong freePhysicalMemory = 0;
+        try
         {
-            foreach (ManagementObject obj in searcher.Get())
+            using (var searcher = new ManagementObjectSearcher("SELECT FreePhysicalMemory FROM Win32_OperatingSystem"))
             {
-                // Convert from kilobytes to bytes
-                return (ulong.Parse(obj["FreePhysicalMemory"]?.ToString()) * 1024);
+                foreach (ManagementObject obj in searcher.Get())
+                {
+                    // Convert from kilobytes to bytes
+                    // Check for null and parse the value to ulong or return 0
+                    freePhysicalMemory = obj?["FreePhysicalMemory"] != null &&
+                        ulong.TryParse(obj["FreePhysicalMemory"].ToString(), out ulong parsedValue)
+                        ? parsedValue * 1024 : 0;
+                }
             }
         }
-        return 0;
+        catch (Exception)
+        {
+            freePhysicalMemory = 0;
+        }
+        return freePhysicalMemory;
+    }
+
+    public static string GetBatteryStatus()
+    {
+        string batteryInfo = String.Empty;
+        try
+        {
+            using (var searcher = new ManagementObjectSearcher("SELECT EstimatedChargeRemaining, BatteryStatus FROM Win32_Battery"))
+            {
+                foreach (ManagementObject obj in searcher.Get())
+                {
+                    string percentage = "0";
+                    string status = "Unknown";
+                    try
+                    {
+                        percentage = obj["EstimatedChargeRemaining"] != null &&
+                            int.TryParse(obj["EstimatedChargeRemaining"].ToString(), out int parsedPercentage)
+                            ? $"{parsedPercentage}" : "Unknown";
+                    }
+                    catch (Exception)
+                    {
+                        percentage = "0";
+                    }
+                    try
+                    {
+                        if (obj["BatteryStatus"] != null &&
+                            int.TryParse(obj["BatteryStatus"].ToString(), out int parsedStatus))
+                        {
+                            status = parsedStatus switch
+                            {
+                                1 => "Discharging",
+                                2 => "Charging",
+                                3 => "Fully Charged",
+                                4 => "Low",
+                                5 => "Critical",
+                                6 => "Charging and High",
+                                7 => "Charging and Low",
+                                8 => "Charging and Critical",
+                                9 => "Undefined",
+                                10 => "Partially Charged",
+                                _ => "Unknown"
+                            };
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        status = "Unknown";
+                    }
+                    // List each battery on a new line and indent with tabs
+                    batteryInfo += $"{percentage}% ({status})\n\t\t\t";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            return $"Error retrieving battery information: {ex.Message}";
+        }
+        return batteryInfo.Trim();
     }
 
     public static string GetFriendlyOsName()
@@ -279,10 +368,10 @@ public class WInfoCli
         try
         {
             int currentProcessId = Process.GetCurrentProcess().Id;
-            ManagementObjectSearcher query = new ManagementObjectSearcher($"SELECT * FROM Win32_Process WHERE ProcessId = {currentProcessId}");
-            foreach (ManagementObject process in query.Get())
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher($"SELECT * FROM Win32_Process WHERE ProcessId = {currentProcessId}");
+            foreach (ManagementObject obj in searcher.Get())
             {
-                int parentProcessId = Convert.ToInt32(process["ParentProcessId"]);
+                int parentProcessId = Convert.ToInt32(obj["ParentProcessId"]);
                 Process parentProcess = Process.GetProcessById(parentProcessId);
                 return parentProcess.ProcessName;
             }
@@ -296,33 +385,108 @@ public class WInfoCli
 
     public static string GetDiskInformation()
     {
-        string result = String.Empty;
+        string driveInfo = String.Empty;
         try
         {
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_LogicalDisk WHERE DriveType = 3");
-            foreach (ManagementObject drive in searcher.Get())
+            foreach (ManagementObject obj in searcher.Get())
             {
+                string driveLetter = string.Empty;
+                string fileSystem = string.Empty;
+                ulong totalSpace = 0;
+                ulong freeSpace = 0;
                 try
                 {
-                    string driveLetter = drive["DeviceID"]?.ToString();
-                    string fileSystem = drive["FileSystem"]?.ToString();
-                    ulong totalSpace = (ulong)drive["Size"] / GibibyteUL;
-                    ulong freeSpace = (ulong)drive["FreeSpace"] / GibibyteUL;
-                    // List each drive on a new line
-                    result += $"{driveLetter}\\ {totalSpace} GiB ({freeSpace} GiB free) - {fileSystem}\n\t\t\t";
+                    driveLetter = obj["DeviceID"]?.ToString();
                 }
                 catch (Exception)
                 {
-                    // Skip this drive if there is an error
-                    result += "";
+                    driveLetter = "Unknown Drive";
                 }
+                try
+                {
+                    fileSystem = obj["FileSystem"]?.ToString();
+                }
+                catch (Exception)
+                {
+                    fileSystem = "Unknown FS";
+                }
+                try
+                {
+                    totalSpace = (ulong)obj["Size"] / GibibyteUL;
+                }
+                catch (Exception)
+                {
+                    totalSpace = 0;
+                }
+                try
+                {
+                    freeSpace = (ulong)obj["FreeSpace"] / GibibyteUL;
+                }
+                catch (Exception)
+                {
+                    freeSpace = 0;
+                }
+                // List each drive on a new line and indent with tabs
+                driveInfo += $"{driveLetter}\\ {totalSpace} GiB ({freeSpace} GiB free) - {fileSystem}\n\t\t\t";
+
             }
         }
         catch (Exception ex)
         {
-            result += $"Error retrieving drive information: {ex.Message}";
+            return $"Error retrieving drive information: {ex.Message}";
         }
-        return result.Trim();
+        return driveInfo.Trim();
+    }
+
+    public static string GetDisplayResolution()
+    {
+        string displayInfo = string.Empty;
+        try
+        {
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
+            foreach (ManagementObject obj in searcher.Get())
+            {
+                string horizontalResolution = string.Empty;
+                string verticalResolution = string.Empty;
+                string screenResolution = string.Empty;
+                string refreshRate = string.Empty;
+                string bitsPerPixel = string.Empty;
+                try
+                {
+                    horizontalResolution = obj["CurrentHorizontalResolution"]?.ToString();
+                    verticalResolution = obj["CurrentVerticalResolution"]?.ToString();
+                    screenResolution = $"{horizontalResolution}x{verticalResolution}";
+                }
+                catch (Exception)
+                {
+                    screenResolution = "Unknown Resolution";
+                }
+                try
+                {
+                    refreshRate = obj["CurrentRefreshRate"]?.ToString();
+                }
+                catch (Exception)
+                {
+                    refreshRate = "0";
+                }
+                try
+                {
+                    bitsPerPixel = obj["CurrentBitsPerPixel"]?.ToString();
+                }
+                catch (Exception)
+                {
+                    bitsPerPixel = "0";
+                }
+                // List each display on a new line and indent with tabs
+                displayInfo += $"{screenResolution} @ {refreshRate} Hz ({bitsPerPixel} BPP)\n\t\t\t";
+            }
+        }
+        catch (Exception ex)
+        {
+            return $"Error retrieving display information: {ex.Message}";
+        }
+        return displayInfo.Trim();
     }
 
     public static string GetUserDirs(bool showSpecialDirs)
@@ -348,7 +512,30 @@ public class WInfoCli
         return dirs.Trim();
     }
 
-    // Helper Method(s)
+    // Helper Methods
+    public static bool IsBatteryPresent()
+    {
+        try
+        {
+            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Battery"))
+            {
+                var batteries = searcher.Get();
+                if (batteries.Count > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
     public static string GetRegistryString(string path, string key)
     {
         try
