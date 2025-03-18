@@ -8,10 +8,8 @@ using System;
 using System.Reflection;
 using System.Management;
 using System.Diagnostics;
-using Microsoft.Win32;
 using System.Net;
-using static System.Net.Mime.MediaTypeNames;
-using System.Net.NetworkInformation;
+using Microsoft.Win32;
 
 public class WInfoCli
 {
