@@ -48,7 +48,16 @@ public class WInfoCli
         {
             int startYear = 2025;
             int currentYear = DateTime.Now.Year;
-            string copyrightYear = startYear == currentYear ? $"{startYear}" : $"{startYear}-{currentYear}";
+            string copyrightYear = "";
+            if (currentYear <= startYear)
+            {
+                copyrightYear = startYear.ToString();
+            }
+            else
+            {
+                copyrightYear = $"{startYear}-{currentYear}";
+            }
+
             Console.WriteLine($"WInfoCli - Windows Information Command Line Tool");
             Console.WriteLine($"Copyright (c) {copyrightYear} Bryan Candiliere");
             Console.WriteLine();
