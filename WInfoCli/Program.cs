@@ -80,7 +80,7 @@ public class WInfoCli
 
         if (args.Contains("--version") || args.Contains("-v"))
         {
-            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            Version? version = Assembly.GetExecutingAssembly().GetName().Version;
             Console.WriteLine($"WInfoCli - Windows Information Command Line Tool\nVersion: {version?.ToString() ?? "unknown version"}");
             return;
         }
@@ -223,8 +223,8 @@ public class WInfoCli
             {
                 foreach (ManagementObject obj in searcher.Get())
                 {
-                    string manufacturer = obj["Manufacturer"]?.ToString().Trim();
-                    string model = obj["Model"]?.ToString().Trim();
+                    string? manufacturer = obj["Manufacturer"]?.ToString()?.Trim();
+                    string? model = obj["Model"]?.ToString()?.Trim();
                     if (!string.IsNullOrEmpty(manufacturer) && !string.IsNullOrEmpty(model))
                     {
                         return $"{manufacturer} {model}";
@@ -257,7 +257,7 @@ public class WInfoCli
                 foreach (var obj in searcher.Get())
                 {
                     // List each CPU on a new line
-                    cpuName += $"{obj["Name"].ToString()}\n\t\t\t";
+                    cpuName += $"{obj["Name"]}\n\t\t\t";
                 }
             }
         }
@@ -278,7 +278,7 @@ public class WInfoCli
                 foreach (var obj in searcher.Get())
                 {
                     // List each GPU on a new line
-                    gpuName += $"{obj["Name"].ToString()}\n\t\t\t";
+                    gpuName += $"{obj["Name"]}\n\t\t\t";
                 }
             }
         }
@@ -438,13 +438,13 @@ public class WInfoCli
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_LogicalDisk WHERE DriveType = 3");
             foreach (ManagementObject obj in searcher.Get())
             {
-                string driveLetter = string.Empty;
-                string fileSystem = string.Empty;
+                string? driveLetter;
+                string? fileSystem;
                 ulong totalSpace = 0;
                 ulong freeSpace = 0;
                 try
                 {
-                    driveLetter = obj["DeviceID"]?.ToString();
+                    driveLetter = $"{obj["DeviceID"]?.ToString()}\\";
                 }
                 catch (Exception)
                 {
@@ -475,7 +475,7 @@ public class WInfoCli
                     freeSpace = 0;
                 }
                 // List each drive on a new line and indent with tabs
-                driveInfo += $"{driveLetter}\\ {totalSpace} GiB ({freeSpace} GiB free) - {fileSystem}\n\t\t\t";
+                driveInfo += $"{driveLetter} {totalSpace} GiB ({freeSpace} GiB free) - {fileSystem}\n\t\t\t";
             }
         }
         catch (Exception ex)
@@ -538,11 +538,11 @@ public class WInfoCli
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
             foreach (ManagementObject obj in searcher.Get())
             {
-                string horizontalResolution = string.Empty;
-                string verticalResolution = string.Empty;
-                string screenResolution = string.Empty;
-                string refreshRate = string.Empty;
-                string bitsPerPixel = string.Empty;
+                string? horizontalResolution;
+                string? verticalResolution;
+                string? screenResolution;
+                string? refreshRate;
+                string? bitsPerPixel;
                 try
                 {
                     horizontalResolution = obj["CurrentHorizontalResolution"]?.ToString();
@@ -632,11 +632,11 @@ public class WInfoCli
     {
         try
         {
-            using (RegistryKey registryKey = Registry.LocalMachine.OpenSubKey(path))
+            using (RegistryKey? registryKey = Registry.LocalMachine.OpenSubKey(path))
             {
                 if (registryKey != null)
                 {
-                    object value = registryKey.GetValue(key);
+                    object? value = registryKey.GetValue(key);
                     if (value is string stringValue)
                     {
                         return stringValue;
