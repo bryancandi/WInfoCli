@@ -12,7 +12,6 @@
     <PackageProjectUrl>https://github.com/bryancandi/WInfoCli</PackageProjectUrl>
     <Company>Bryan Candiliere</Company>
     <ApplicationIcon>WInfoCli.ico</ApplicationIcon>
-    <PackageIcon></PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
