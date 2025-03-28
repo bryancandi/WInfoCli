@@ -412,8 +412,8 @@ public class WInfoCli
 
     public static string GetWindowsReleaseVersion()
     {
-        string ReleaseId = GetRegistryString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ReleaseId");
         string DisplayVersion = GetRegistryString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "DisplayVersion");
+        string ReleaseId = GetRegistryString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ReleaseId");
         if (!string.IsNullOrEmpty(DisplayVersion))
         {
             return DisplayVersion;
