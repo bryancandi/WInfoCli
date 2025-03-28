@@ -154,9 +154,9 @@ public class WInfoCli
         Console.WriteLine("System Information");
         Console.WriteLine(LineBreak);
         string osBits = (Environment.Is64BitOperatingSystem) ? "64-bit" : "32-bit";
-        Console.WriteLine($"OS:\t\t\t{GetFriendlyOsName()} ({osBits}) Build {Environment.OSVersion.Version.Build}");
-        Console.WriteLine($"OS Platform:\t\t{Environment.OSVersion.Platform}");
-        Console.WriteLine($"OS Version String:\t{Environment.OSVersion.VersionString}");
+        Console.WriteLine($"OS:\t\t\t{GetFriendlyOsName()} ({osBits})");
+        Console.WriteLine($"Version:\t\t{GetWindowsReleaseVersion()} (Build {Environment.OSVersion.Version.Build}{GetUpdateBuildRevision()})");
+        Console.WriteLine($"Platform:\t\t{Environment.OSVersion.Platform}");
         if (!string.IsNullOrEmpty(Environment.OSVersion.ServicePack))
         {
             Console.WriteLine($"Service Pack:\t\t{Environment.OSVersion.ServicePack}");
@@ -171,7 +171,7 @@ public class WInfoCli
         int tickCount = Environment.TickCount;
         TimeSpan uptime = TimeSpan.FromMilliseconds(tickCount);
         string formattedUptime = string.Format("{0} days, {1} hours, {2} minutes, {3} seconds", uptime.Days, uptime.Hours, uptime.Minutes, uptime.Seconds);
-        Console.WriteLine($"System Uptime:\t\t{formattedUptime}");
+        Console.WriteLine($"Uptime:\t\t\t{formattedUptime}");
         Console.WriteLine(LineBreak);
         Console.WriteLine();
     }
@@ -410,6 +410,31 @@ public class WInfoCli
         return "Microsoft Windows";
     }
 
+    public static string GetWindowsReleaseVersion()
+    {
+        string ReleaseId = GetRegistryString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ReleaseId");
+        string DisplayVersion = GetRegistryString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "DisplayVersion");
+        if (!string.IsNullOrEmpty(DisplayVersion))
+        {
+            return DisplayVersion;
+        }
+        else if (!string.IsNullOrEmpty(ReleaseId))
+        {
+            return ReleaseId;
+        }
+        return "Windows";
+    }
+
+    public static string GetUpdateBuildRevision()
+    {
+        string UBR = GetRegistryString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "UBR");
+        if (!string.IsNullOrEmpty(UBR))
+        {
+            return $".{UBR}";
+        }
+        return "";
+    }
+
     public static string GetWindowsShell()
     {
         try
@@ -640,6 +665,10 @@ public class WInfoCli
                     if (value is string stringValue)
                     {
                         return stringValue;
+                    }
+                    if (value is int intValue)
+                    {
+                        return intValue.ToString();
                     }
                 }
             }
