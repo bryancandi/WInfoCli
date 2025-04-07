@@ -134,9 +134,11 @@ public class WInfoCli
         }
         Console.WriteLine($"Logical Processors:\t{Environment.ProcessorCount}");
         double totalPhysicalMemory = (double)GetTotalPhysicalMemory() / Gibibyte;
-        Console.WriteLine($"Total Physical Memory:\t{totalPhysicalMemory:F2} GiB");
         double freePhysicalMemory = (double)GetFreePhysicalMemory() / Gibibyte;
-        Console.WriteLine($"Free Physical Memory:\t{freePhysicalMemory:F2} GiB");
+        Console.WriteLine($"Physical Memory:\t{totalPhysicalMemory:F2} GiB ({freePhysicalMemory:F2} GiB free)");
+        Console.WriteLine($"BIOS Version/Date:\t{GetBIOSInformation()}");
+        Console.WriteLine($"Embedded Controller:\t{GetEmbeddedControllerVersion()}");
+        Console.WriteLine($"UEFI Secure Boot:\t{GetUEFISecureBoot()}");
         if (IsBatteryPresent())
         {
             Console.WriteLine($"Battery Status:\t\t{GetBatteryStatus()}");
@@ -163,7 +165,6 @@ public class WInfoCli
         }
         Console.WriteLine($"Windows Shell:\t\t{GetWindowsShell()}");
         Console.WriteLine($"Windows Directory:\t{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}");
-        Console.WriteLine($"System Directory:\t{Environment.SystemDirectory}");
         Console.WriteLine($"Logical Drives:\t\t{GetDiskInformation()}");
         var (ipv4, ipv6) = GetHostIPAddresses(showIPv6);
         Console.WriteLine($"IP Addresses:\t\t{ipv4 ?? "No IPv4 address found"}\n\t\t\t{ipv6 ?? "No IPv6 address found"}".Trim());
@@ -336,6 +337,121 @@ public class WInfoCli
         return freePhysicalMemory;
     }
 
+    public static string GetBIOSInformation()
+    {
+        string biosInfo = string.Empty;
+        try
+        {
+            using (var searcher = new ManagementObjectSearcher("SELECT Manufacturer, SMBIOSBIOSVersion, ReleaseDate FROM Win32_BIOS"))
+            {
+                foreach (var obj in searcher.Get())
+                {
+                    string? manufacturer;
+                    string? version;
+                    string? releaseDateRaw;
+                    string? releaseDate;
+                    try
+                    {
+                        manufacturer = obj["Manufacturer"]?.ToString()?.Trim();
+                    }
+                    catch (Exception)
+                    {
+                        manufacturer = String.Empty;
+                    }
+                    try
+                    {
+                        version = obj["SMBIOSBIOSVersion"]?.ToString()?.Trim();
+                    }
+                    catch (Exception)
+                    {
+                        version = String.Empty;
+                    }
+                    try
+                    {
+                        releaseDateRaw = obj["ReleaseDate"]?.ToString()?.Trim();
+                        releaseDate = string.Empty;
+                        if (!string.IsNullOrEmpty(releaseDateRaw) && releaseDateRaw.Length >= 8)
+                        {
+                            string year = releaseDateRaw.Substring(0, 4);
+                            string month = releaseDateRaw.Substring(4, 2);
+                            string day = releaseDateRaw.Substring(6, 2);
+                            releaseDate = $"{month}/{day}/{year}"; // Format as MM/DD/YYYY
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        releaseDate = String.Empty;
+                    }
+                    biosInfo += $"{manufacturer} {version} {releaseDate}\n\t\t\t";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            return $"Error retrieving BIOS information: {ex.Message}";
+        }
+        return biosInfo.Trim();
+    }
+
+    public static string GetEmbeddedControllerVersion()
+    {
+        string ecVersion = string.Empty;
+        try
+        {
+            using (ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT EmbeddedControllerMajorVersion, EmbeddedControllerMinorVersion FROM Win32_BIOS"))
+            {
+                foreach (ManagementObject obj in searcher.Get())
+                {
+                    string? majorVersion;
+                    string? minorVersion;
+                    try
+                    {
+                        majorVersion = obj["EmbeddedControllerMajorVersion"]?.ToString()?.Trim();
+                    }
+                    catch (Exception)
+                    {
+                        majorVersion = String.Empty;
+                    }
+                    try
+                    {
+                        minorVersion = $".{obj["EmbeddedControllerMinorVersion"]?.ToString()?.Trim()}";
+                    }
+                    catch (Exception)
+                    {
+                        minorVersion = String.Empty;
+                    }
+                    ecVersion += $"{majorVersion}{minorVersion}\n\t\t\t";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            return $"Error retrieving EC version: {ex.Message}";
+        }
+        return ecVersion.Trim();
+    }
+
+    public static string GetUEFISecureBoot()
+    {
+        string UEFISecureBootEnabled = GetRegistryString(@"SYSTEM\CurrentControlSet\Control\SecureBoot\State", "UEFISecureBootEnabled");
+        if (!string.IsNullOrEmpty(UEFISecureBootEnabled))
+        {
+            if (UEFISecureBootEnabled == "1")
+            {
+                return "Enabled";
+            }
+            else if (UEFISecureBootEnabled == "0")
+            {
+                return "Disabled";
+            }
+            else
+            {
+                return "Not Detected";
+            }
+        }
+        return "Not Supported";
+    }
+
     public static string GetBatteryStatus()
     {
         string batteryInfo = String.Empty;
@@ -440,7 +556,7 @@ public class WInfoCli
         try
         {
             int currentProcessId = Process.GetCurrentProcess().Id;
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher($"SELECT * FROM Win32_Process WHERE ProcessId = {currentProcessId}");
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher($"SELECT ParentProcessId FROM Win32_Process WHERE ProcessId = {currentProcessId}");
             foreach (ManagementObject obj in searcher.Get())
             {
                 int parentProcessId = Convert.ToInt32(obj["ParentProcessId"]);
@@ -460,7 +576,7 @@ public class WInfoCli
         string driveInfo = String.Empty;
         try
         {
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_LogicalDisk WHERE DriveType = 3");
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT DeviceID, FileSystem, Size, FreeSpace FROM Win32_LogicalDisk WHERE DriveType = 3");
             foreach (ManagementObject obj in searcher.Get())
             {
                 string? driveLetter;
@@ -560,7 +676,7 @@ public class WInfoCli
         string displayInfo = string.Empty;
         try
         {
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT CurrentHorizontalResolution, CurrentVerticalResolution, CurrentRefreshRate, CurrentBitsPerPixel FROM Win32_VideoController");
             foreach (ManagementObject obj in searcher.Get())
             {
                 string? horizontalResolution;
