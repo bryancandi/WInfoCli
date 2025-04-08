@@ -257,7 +257,7 @@ public class WInfoCli
             {
                 foreach (var obj in searcher.Get())
                 {
-                    // List each CPU on a new line
+                    // List each CPU on a new line and indent with tabs
                     cpuName += $"{obj["Name"]}\n\t\t\t";
                 }
             }
@@ -278,7 +278,7 @@ public class WInfoCli
             {
                 foreach (var obj in searcher.Get())
                 {
-                    // List each GPU on a new line
+                    // List each GPU on a new line and indent with tabs
                     gpuName += $"{obj["Name"]}\n\t\t\t";
                 }
             }
@@ -382,6 +382,11 @@ public class WInfoCli
                     {
                         releaseDate = String.Empty;
                     }
+                    if (string.IsNullOrEmpty(manufacturer) && string.IsNullOrEmpty(version) && string.IsNullOrEmpty(releaseDate))
+                    {
+                        return "Unknown";
+                    }
+                    // List each version on a new line and indent with tabs
                     biosInfo += $"{manufacturer} {version} {releaseDate}\n\t\t\t";
                 }
             }
@@ -420,6 +425,11 @@ public class WInfoCli
                     {
                         minorVersion = String.Empty;
                     }
+                    if (string.IsNullOrEmpty(majorVersion) && string.IsNullOrEmpty(minorVersion))
+                    {
+                        return "Unknown";
+                    }
+                    // List each version on a new line and indent with tabs
                     ecVersion += $"{majorVersion}{minorVersion}\n\t\t\t";
                 }
             }
