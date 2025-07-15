@@ -27,8 +27,10 @@ Logo Options:
     --logo-win11, -11
         Display Windows 11 style ASCII logo.
 ```
+\
 `WInfoCli.exe`\
 ![WInfoCli](/Screenshots/WInfoCli.png)
+\
 \
 `WInfoCli.exe --show-paths`\
 ![WInfoCli-paths](/Screenshots/WInfoCli-paths.png)
