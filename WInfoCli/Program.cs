@@ -13,7 +13,6 @@ using Microsoft.Win32;
 
 public class WInfoCli
 {
-
     private const string LineBreak = "--------------------------------------------------------------------------------";
     private const double Gibibyte = 1024.0 * 1024.0 * 1024.0;
     private const ulong GibibyteUL = 1024 * 1024 * 1024;
