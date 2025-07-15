@@ -28,7 +28,7 @@ Logo Options:
         Display Windows 11 style ASCII logo.
 ```
 `WInfoCli.exe`\
-![WInfoCli](/Screenshots/WInfoCli.png)\
+![WInfoCli](/Screenshots/WInfoCli.png)
 <!--
 `WInfoCli.exe --logo`\
 ![WInfoCli-logo](/Screenshots/WInfoCli-logo.png)\
