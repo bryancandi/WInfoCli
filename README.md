@@ -36,4 +36,8 @@ Logo Options:
 ![WInfoCli-paths](/Screenshots/WInfoCli-paths.png)
 \
 \
+`WInfoCli.exe --logo`\
+![WInfoCli-paths](/Screenshots/WInfoCli-logo.png)
+\
+\
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/bryancandi/WInfoCli/total?style=flat&label=Downloads&color=cyan)
