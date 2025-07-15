@@ -118,30 +118,65 @@ public class WInfoCli
 
     public static void DisplayComputerInfo()
     {
+        Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine("Computer Information");
+        Console.ResetColor();
         Console.WriteLine(LineBreak);
-        Console.WriteLine($"Host:\t\t\t{GetComputerModel()}");
-        Console.WriteLine($"Processor:\t\t{GetCPUName()}");
-        Console.WriteLine($"Graphics:\t\t{GetGPUName()}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Host");
+        Console.ResetColor();
+        Console.WriteLine($":\t\t\t{GetComputerModel()}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Processor");
+        Console.ResetColor();
+        Console.WriteLine($":\t\t{GetCPUName()}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Graphics");
+        Console.ResetColor();
+        Console.WriteLine($":\t\t{GetGPUName()}");
         string processorArchitecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE") ?? string.Empty;
         if (!string.IsNullOrEmpty(processorArchitecture))
         {
-            Console.WriteLine($"Processor Architecture:\t{processorArchitecture}");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("Processor Architecture");
+            Console.ResetColor();
+            Console.WriteLine($":\t{processorArchitecture}");
         }
         else
         {
-            Console.WriteLine("Processor Architecture:\tUnknown");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("Processor Architecture");
+            Console.ResetColor();
+            Console.WriteLine(":\tUnknown");
         }
-        Console.WriteLine($"Logical Processors:\t{Environment.ProcessorCount}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Logical Processors");
+        Console.ResetColor();
+        Console.WriteLine($":\t{Environment.ProcessorCount}");
         double totalPhysicalMemory = (double)GetTotalPhysicalMemory() / Gibibyte;
         double freePhysicalMemory = (double)GetFreePhysicalMemory() / Gibibyte;
-        Console.WriteLine($"Physical Memory:\t{totalPhysicalMemory:F2} GiB ({freePhysicalMemory:F2} GiB free)");
-        Console.WriteLine($"BIOS Version/Date:\t{GetBIOSInformation()}");
-        Console.WriteLine($"Embedded Controller:\t{GetEmbeddedControllerVersion()}");
-        Console.WriteLine($"UEFI Secure Boot:\t{GetUEFISecureBoot()}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Physical Memory");
+        Console.ResetColor();
+        Console.WriteLine($":\t{totalPhysicalMemory:F2} GiB ({freePhysicalMemory:F2} GiB free)");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("BIOS Version/Date");
+        Console.ResetColor();
+        Console.WriteLine($":\t{GetBIOSInformation()}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Embedded Controller");
+        Console.ResetColor();
+        Console.WriteLine($":\t{GetEmbeddedControllerVersion()}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("UEFI Secure Boot");
+        Console.ResetColor();
+        Console.WriteLine($":\t{GetUEFISecureBoot()}");
         if (IsBatteryPresent())
         {
-            Console.WriteLine($"Battery Status:\t\t{GetBatteryStatus()}");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("Battery Status");
+            Console.ResetColor();
+            Console.WriteLine($":\t\t{GetBatteryStatus()}");
         }
         else
         {
@@ -153,38 +188,81 @@ public class WInfoCli
 
     public static void DisplaySystemInfo(bool showIPv6)
     {
+        Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine("System Information");
+        Console.ResetColor();
         Console.WriteLine(LineBreak);
         string osBits = (Environment.Is64BitOperatingSystem) ? "64-bit" : "32-bit";
-        Console.WriteLine($"OS:\t\t\t{GetFriendlyOsName()} ({osBits})");
-        Console.WriteLine($"Version:\t\t{GetWindowsReleaseVersion()} (Build {Environment.OSVersion.Version.Build}{GetUpdateBuildRevision()})");
-        Console.WriteLine($"Platform:\t\t{Environment.OSVersion.Platform}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("OS");
+        Console.ResetColor();
+        Console.WriteLine($":\t\t\t{GetFriendlyOsName()} ({osBits})");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Version");
+        Console.ResetColor();
+        Console.WriteLine($":\t\t{GetWindowsReleaseVersion()} (Build {Environment.OSVersion.Version.Build}{GetUpdateBuildRevision()})");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Platform");
+        Console.ResetColor();
+        Console.WriteLine($":\t\t{Environment.OSVersion.Platform}");
         if (!string.IsNullOrEmpty(Environment.OSVersion.ServicePack))
         {
-            Console.WriteLine($"Service Pack:\t\t{Environment.OSVersion.ServicePack}");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("Service Pack");
+            Console.ResetColor();
+            Console.WriteLine($":\t\t{Environment.OSVersion.ServicePack}");
         }
-        Console.WriteLine($"Windows Shell:\t\t{GetWindowsShell()}");
-        Console.WriteLine($"Windows Directory:\t{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}");
-        Console.WriteLine($"Logical Drives:\t\t{GetDiskInformation()}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Windows Shell");
+        Console.ResetColor();
+        Console.WriteLine($":\t\t{GetWindowsShell()}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Windows Directory");
+        Console.ResetColor();
+        Console.WriteLine($":\t{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Logical Drives");
+        Console.ResetColor();
+        Console.WriteLine($":\t\t{GetDiskInformation()}");
         var (ipv4, ipv6) = GetHostIPAddresses(showIPv6);
-        Console.WriteLine($"IP Addresses:\t\t{ipv4 ?? "No IPv4 address found"}\n\t\t\t{ipv6 ?? "No IPv6 address found"}".Trim());
-        Console.WriteLine($"Display Resolution:\t{GetDisplayResolution()}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("IP Addresses");
+        Console.ResetColor();
+        Console.WriteLine($":\t\t{ipv4 ?? "No IPv4 address found"}\n\t\t\t{ipv6 ?? "No IPv6 address found"}".Trim());
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Display Resolution");
+        Console.ResetColor();
+        Console.WriteLine($":\t{GetDisplayResolution()}");
         int tickCount = Environment.TickCount;
         TimeSpan uptime = TimeSpan.FromMilliseconds(tickCount);
         string formattedUptime = string.Format("{0} days, {1} hours, {2} minutes, {3} seconds", uptime.Days, uptime.Hours, uptime.Minutes, uptime.Seconds);
-        Console.WriteLine($"Uptime:\t\t\t{formattedUptime}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Uptime");
+        Console.ResetColor();
+        Console.WriteLine($":\t\t\t{formattedUptime}");
         Console.WriteLine(LineBreak);
         Console.WriteLine();
     }
 
     public static void DisplayUserInfo(bool showSpecialDirs)
     {
+        Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine("User Information");
+        Console.ResetColor();
         Console.WriteLine(LineBreak);
-        Console.WriteLine($"User Name:\t\t{Environment.UserName}");
-        Console.WriteLine($"User Domain Name:\t{Environment.UserDomainName}");
-        Console.WriteLine($"Machine Name:\t\t{Environment.MachineName}");
-        Console.WriteLine(GetUserDirs(showSpecialDirs));
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("User Name");
+        Console.ResetColor();
+        Console.WriteLine($":\t\t{Environment.UserName}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("User Domain Name");
+        Console.ResetColor();
+        Console.WriteLine($":\t{Environment.UserDomainName}");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Machine Name");
+        Console.ResetColor();
+        Console.WriteLine($":\t\t{Environment.MachineName}");
+        GetUserDirs(showSpecialDirs);
         Console.WriteLine(LineBreak);
         Console.WriteLine();
     }
@@ -193,23 +271,31 @@ public class WInfoCli
     {
         if (showPaths)
         {
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("Environment PATHs");
+            Console.ResetColor();
             Console.WriteLine(LineBreak);
             // Get user path
             string userPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User) ?? string.Empty;
-            Console.WriteLine("User PATH:");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("User PATH");
+            Console.ResetColor();
+            Console.WriteLine(":");
             string[] userPaths = userPath.Split(';');
             foreach (string path in userPaths)
             {
-                Console.WriteLine($"    {path}");
+                Console.WriteLine(path);
             }
             // Get system path
             string systemPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine) ?? string.Empty;
-            Console.WriteLine("System PATH:");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("System PATH");
+            Console.ResetColor();
+            Console.WriteLine(":");
             string[] systemPaths = systemPath.Split(';');
             foreach (string path in systemPaths)
             {
-                Console.WriteLine($"    {path}");
+                Console.WriteLine(path);
             }
             Console.WriteLine(LineBreak);
             Console.WriteLine();
@@ -731,28 +817,53 @@ public class WInfoCli
         return displayInfo.Trim();
     }
 
-    public static string GetUserDirs(bool showSpecialDirs)
+    public static void GetUserDirs(bool showSpecialDirs)
     {
-        string dirs = string.Empty;
         try
         {
-            dirs += $"User Profile:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\n";
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("User Profile");
+            Console.ResetColor();
+            Console.WriteLine($":\t\t{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}");
             if (showSpecialDirs)
             {
-                dirs += $"Desktop:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}\n";
-                dirs += $"Documents:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}\n";
-                dirs += $"Pictures:\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)}\n";
-                dirs += $"Music:\t\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyMusic)}\n";
-                dirs += $"Videos:\t\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyVideos)}\n";
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("Desktop");
+                Console.ResetColor();
+                Console.WriteLine($":\t\t{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("Documents");
+                Console.ResetColor();
+                Console.WriteLine($":\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("Pictures");
+                Console.ResetColor();
+                Console.WriteLine($":\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)}");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("Music");
+                Console.ResetColor();
+                Console.WriteLine($":\t\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyMusic)}");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("Videos");
+                Console.ResetColor();
+                Console.WriteLine($":\t\t\t{Environment.GetFolderPath(Environment.SpecialFolder.MyVideos)}");
             }
-            dirs += $"Application Data:\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\n";
-            dirs += $"Working Directory:\t{Environment.CurrentDirectory}\n";
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("Application Data");
+            Console.ResetColor();
+            Console.WriteLine($":\t{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("Working Directory");
+            Console.ResetColor();
+            Console.WriteLine($":\t{Environment.CurrentDirectory}");
         }
         catch (Exception ex)
         {
-            return $"Error retrieving user directory information: {ex.Message}";
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("User Profile");
+            Console.ResetColor();
+            Console.WriteLine($":\t\tError retrieving user profile information: {ex.Message}");
         }
-        return dirs.Trim();
     }
 
     // Helper Methods
