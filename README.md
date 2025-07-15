@@ -29,11 +29,7 @@ Logo Options:
 ```
 `WInfoCli.exe`\
 ![WInfoCli](/Screenshots/WInfoCli.png)
-<!--
-`WInfoCli.exe --logo`\
-![WInfoCli-logo](/Screenshots/WInfoCli-logo.png)\
 \
--->
 `WInfoCli.exe --show-paths`\
 ![WInfoCli-paths](/Screenshots/WInfoCli-paths.png)
 \
