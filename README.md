@@ -29,7 +29,6 @@ Logo Options:
 ```
 `WInfoCli.exe`\
 ![WInfoCli](/Screenshots/WInfoCli.png)\
-\
 <!--
 `WInfoCli.exe --logo`\
 ![WInfoCli-logo](/Screenshots/WInfoCli-logo.png)\
