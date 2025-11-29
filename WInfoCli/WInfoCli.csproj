@@ -6,11 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Version>1.2.1</Version>
-    <Title>WInfoCli - Windows Information Command Line Tool</Title>
+    <Title>WInfoCli - Command-Line Windows Information Utility</Title>
     <Description>A C# console application designed to retrieve and display Windows PC system information.</Description>
-    <Copyright>Copyright (c) 2025 Bryan Candiliere</Copyright>
+    <Copyright>Copyright (c) 2025 Bryan C.</Copyright>
     <PackageProjectUrl>https://github.com/bryancandi/WInfoCli</PackageProjectUrl>
-    <Company>Bryan Candiliere</Company>
+    <Company>Bryan C.</Company>
     <ApplicationIcon>WInfoCli.ico</ApplicationIcon>
   </PropertyGroup>
 
