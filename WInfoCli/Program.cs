@@ -1,4 +1,4 @@
-// WInfoCli - Windows Information Command Line Tool
+// WInfoCli - Command-Line Windows Information Utility
 // Copyright (c) 2025 Bryan Candiliere
 
 // Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -37,7 +37,7 @@ public class WInfoCli
         {
             if (!validArgs.Contains(arg))
             {
-                Console.WriteLine($"Invalid command line argument: {arg}");
+                Console.WriteLine($"Invalid command-line argument: {arg}");
                 Console.WriteLine("For supported arguments, run: 'WInfoCli.exe --help'.");
                 return;
             }
@@ -57,8 +57,8 @@ public class WInfoCli
                 copyrightYear = $"{startYear}-{currentYear}";
             }
 
-            Console.WriteLine($"WInfoCli - Windows Information Command Line Tool");
-            Console.WriteLine($"Copyright (c) {copyrightYear} Bryan Candiliere");
+            Console.WriteLine($"WInfoCli - Command-Line Windows Information Utility");
+            Console.WriteLine($"Copyright (c) {copyrightYear} Bryan C.");
             Console.WriteLine();
             Console.WriteLine("Usage: WInfoCli.exe [Options]");
             Console.WriteLine();
@@ -80,7 +80,7 @@ public class WInfoCli
         if (args.Contains("--version") || args.Contains("-v"))
         {
             Version? version = Assembly.GetExecutingAssembly().GetName().Version;
-            Console.WriteLine($"WInfoCli - Windows Information Command Line Tool\nVersion: {version?.ToString() ?? "unknown version"}");
+            Console.WriteLine($"WInfoCli - Command-Line Windows Information Utility\nVersion: {version?.ToString() ?? "unknown version"}");
             return;
         }
 
