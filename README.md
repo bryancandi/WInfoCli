@@ -1,8 +1,9 @@
 # WInfoCli
+
+*Windows System Information Command-Line Utility*
+
 🟥 🟩\
 🟦 🟨
-
-### Windows System Information Command-Line Utility
 
 ```
 Usage: WInfoCli.exe [Options]
