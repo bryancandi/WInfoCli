@@ -5,7 +5,7 @@
 🟥 🟩\
 🟦 🟨
 
-```
+```powershell
 Usage: WInfoCli.exe [Options]
 
 General Options:
@@ -18,9 +18,9 @@ Display Options:
     --ipv6, -6
         Display IPv6 addresses.
     --show-dirs, -d
-        Display special user directories (e.g., Documents, Desktop).
+        Display special user directories (e.g., Desktop, Documents).
     --show-paths, -p
-        Display environment PATH variables for the current system.
+        Display system environment PATH variables.
 
 Logo Options:
     --logo, -l
