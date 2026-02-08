@@ -13,6 +13,7 @@ using Microsoft.Win32;
 
 public class WInfoCli
 {
+    private const string ProgName = "WInfoCli - Windows System Information Command-Line Utility";
     private const string LineBreak = "--------------------------------------------------------------------------------";
     private const double Gibibyte = 1024.0 * 1024.0 * 1024.0;
     private const ulong GibibyteUL = 1024 * 1024 * 1024;
@@ -57,7 +58,7 @@ public class WInfoCli
                 copyrightYear = $"{startYear}-{currentYear}";
             }
 
-            Console.WriteLine($"WInfoCli - Windows System Information Command-Line Utility");
+            Console.WriteLine(ProgName);
             Console.WriteLine($"Copyright (c) {copyrightYear} Bryan C.");
             Console.WriteLine();
             Console.WriteLine("Usage: WInfoCli.exe [Options]");
@@ -80,7 +81,7 @@ public class WInfoCli
         if (args.Contains("--version") || args.Contains("-v"))
         {
             Version? version = Assembly.GetExecutingAssembly().GetName().Version;
-            Console.WriteLine($"WInfoCli - Windows System Information Command-Line Utility\nVersion: {version?.ToString() ?? "unknown version"}");
+            Console.WriteLine($"{ProgName}\nVersion: {version?.ToString() ?? "unknown version"}");
             return;
         }
 
