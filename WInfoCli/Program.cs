@@ -1,5 +1,5 @@
-// WInfoCli - Command-Line Windows Information Utility
-// Copyright (c) 2025 Bryan Candiliere
+// WInfoCli - Windows System Information Command-Line Utility
+// Copyright (c) 2025-2026 Bryan Candiliere
 
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 // https://github.com/bryancandi/WInfoCli/blob/master/LICENSE.txt
@@ -57,7 +57,7 @@ public class WInfoCli
                 copyrightYear = $"{startYear}-{currentYear}";
             }
 
-            Console.WriteLine($"WInfoCli - Command-Line Windows Information Utility");
+            Console.WriteLine($"WInfoCli - Windows System Information Command-Line Utility");
             Console.WriteLine($"Copyright (c) {copyrightYear} Bryan C.");
             Console.WriteLine();
             Console.WriteLine("Usage: WInfoCli.exe [Options]");
@@ -67,8 +67,8 @@ public class WInfoCli
             Console.WriteLine("    --version, -v\n\tDisplay application version information.\n");
             Console.WriteLine("Display Options:");
             Console.WriteLine("    --ipv6, -6\n\tDisplay IPv6 addresses.");
-            Console.WriteLine("    --show-dirs, -d\n\tDisplay special user directories (e.g., Documents, Desktop).");
-            Console.WriteLine("    --show-paths, -p\n\tDisplay environment PATH variables for the current system.\n");
+            Console.WriteLine("    --show-dirs, -d\n\tDisplay special user directories (e.g., Desktop, Documents).");
+            Console.WriteLine("    --show-paths, -p\n\tDisplay system environment PATH variables.\n");
             Console.WriteLine("Logo Options:");
             Console.WriteLine("    --logo, -l\n\tDisplay classic style Windows ASCII logo.");
             Console.WriteLine("    --logo-win10, -10\n\tDisplay Windows 10 style ASCII logo.");
@@ -80,7 +80,7 @@ public class WInfoCli
         if (args.Contains("--version") || args.Contains("-v"))
         {
             Version? version = Assembly.GetExecutingAssembly().GetName().Version;
-            Console.WriteLine($"WInfoCli - Command-Line Windows Information Utility\nVersion: {version?.ToString() ?? "unknown version"}");
+            Console.WriteLine($"WInfoCli - Windows System Information Command-Line Utility\nVersion: {version?.ToString() ?? "unknown version"}");
             return;
         }
 
@@ -93,14 +93,17 @@ public class WInfoCli
         if (args.Contains("--logo") || args.Contains("-l"))
         {
             DisplayAsciiLogoColor();
+            return;
         }
         else if (args.Contains("--logo-win10") || args.Contains("-10"))
         {
             DisplayAsciiLogo10();
+            return;
         }
         else if (args.Contains("--logo-win11") || args.Contains("-11"))
         {
             DisplayAsciiLogo11();
+            return;
         }
         else
         {
